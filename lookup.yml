@@ -1,0 +1,28 @@
+- hosts: 192.168.60.4
+  gather_facts: false
+  become: true
+  vars:
+    funny_value: "{{ lookup('file','/home/rlizano/funny_message.txt') }}"
+    fqdn: my.fqdn.com.whatever.shit
+  tasks:
+    # - stat:
+    #     path: "{{item}}"
+    #   with_items:
+    #     - example
+    #     - example2
+    #   register: example_path
+    #
+    # - debug:
+    #     var: example_path.results[0].stat.exists
+    #
+    # - debug:
+    #     var: example_path.results[1].stat.exists
+
+  - command: cat /proc/mounts
+    register: mounts
+  # - debug: msg="{{mounts.stdout_lines[0]}}"
+  # - debug: msg="{{mounts.stdout_lines[-1]}}"
+  - debug:
+      msg: >
+      First line is {{mounts.stdout_lines[0]}}
+      Last line is {{mounts.stdout_lines[-1]}}
