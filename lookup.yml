@@ -1,10 +1,36 @@
-- hosts: 192.168.60.4
+- hosts: localhost
   gather_facts: false
   become: true
   vars:
     funny_value: "{{ lookup('file','/home/rlizano/funny_message.txt') }}"
     fqdn: my.fqdn.com.whatever.shit
+    node_names: "host1#host2#host3"
+    base_port: "1111#2222#3333"
+    other_var: "one#two#three"
+    ini_var: "1#2#3"
   tasks:
+  - name: name
+    set_fact:
+      nodes: "{{ node_names.split('#') }}"
+      ports: "{{ base_port.split('#') }}"
+      other: "{{ other_var.split('#') }}"
+      ini: "{{ ini_var.split('#') }}"
+
+  - name: node_names
+    include_tasks: task.yml
+    vars:
+      node: "{{ item.0 }}"
+      port: "{{ item.1 }}"
+      otha: "{{ item.2 }}"
+      var: "{{ item.3 }}"
+    loop: "{{ nodes | zip_longest(ports,other,ini) | list }}"
+
+  # - name: give me longest combo of three lists , fill with X
+  #   debug:
+  #     msg: "{{item.0}} {{item.1}} {{item.2}}"
+  #   loop: "{{ nodes | zip_longest(ports,other,fillvalue='x') | list }}"
+  #   loop: "{{ [1,2,3] | zip_longest(['a','b','c','d','e','f'], [21, 22, 23], ['one','two'],fillvalue='X') | list }}"
+
     # - stat:
     #     path: "{{item}}"
     #   with_items:
@@ -18,11 +44,7 @@
     # - debug:
     #     var: example_path.results[1].stat.exists
 
-  - command: cat /proc/mounts
-    register: mounts
+  # - command: cat /proc/mounts
+  #   register: mounts
   # - debug: msg="{{mounts.stdout_lines[0]}}"
   # - debug: msg="{{mounts.stdout_lines[-1]}}"
-  - debug:
-      msg: >
-      First line is {{mounts.stdout_lines[0]}}
-      Last line is {{mounts.stdout_lines[-1]}}

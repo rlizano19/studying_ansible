@@ -1,0 +1,11 @@
+# - set_fact:
+    # node: "{{ item.0 }}"
+    # port: "{{ item.1 }}"
+    # other: "{{ item.2 }}"
+    # ini: "{{ item.3 }}"
+
+- debug:
+    msg: "Configuring host {{ node }} with port {{ port }} and option {{ otha }} and ini {{ var }}."
+    # msg: "Configuring host {{ node }} with port {{ port }} and option {{ other }}. Ini {{ini}}"
+- pause:
+    seconds: 1
