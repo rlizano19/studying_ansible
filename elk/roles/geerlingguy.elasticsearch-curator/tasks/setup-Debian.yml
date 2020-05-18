@@ -1,0 +1,5 @@
+---
+- name: Ensure pip is installed.
+  apt:
+    name: "{{ elasticsearch_curator_pip_package }}"
+    state: present

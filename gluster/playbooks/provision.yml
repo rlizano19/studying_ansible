@@ -1,0 +1,53 @@
+- hosts: gluster
+  become: yes
+
+  vars_files:
+    - vars.yml
+
+  roles:
+    - geerlingguy.firewall
+    - geerlingguy.glusterfs
+
+  tasks:
+    - name: Check if directories already exist due to race condition bug...
+      stat:
+        path: "{{ gluster_brick_dir }}"
+      register: brick_dir
+
+    - name: Check if directories already exist due to race condition bug...
+      stat:
+        path: "{{ gluster_mount_dir }}"
+      register: mount_dir
+
+    - name: Ensure Gluster brick and mount directories exist.
+      file:
+        path: "{{ gluster_brick_dir }}"
+        state: directory
+        mode: "0775"
+      when: brick_dir.stat.exists == false
+
+    - name: Ensure Gluster brick and mount directories exist.
+      file:
+        path: "{{ gluster_mount_dir }}"
+        state: directory
+        mode: "0775"
+      when: mount_dir.stat.exists == false
+
+    - name: Configure Gluster volume
+      gluster_volume:
+        state: present
+        name: "{{ gluster_brick_name }}"
+        brick: "{{ gluster_brick_dir }}"
+        replicas: 2
+        cluster: "{{ groups.gluster | join(',') }}"
+        host: "{{ inventory_hostname }}"
+        force: yes
+      run_once: yes
+
+    - name: Ensure Gluster volume is mounted
+      mount:
+        name: "{{ gluster_mount_dir }}"
+        src: "{{ inventory_hostname }}:/{{ gluster_brick_name }}"
+        fstype: glusterfs
+        opts: "defaults,_netdev"
+        state: mounted
