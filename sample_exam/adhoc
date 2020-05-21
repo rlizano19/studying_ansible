@@ -1,0 +1,9 @@
+#/bin/bash
+
+ansible all -b -u root -m user -a "state=present name=automation password={{ 'devops' | password_hash('sha512','secretsalsa')}}"
+
+ansible all -b -u root -m file -a "state=directory path=/home/automation/.ssh"
+
+ansible all -b -u root -m copy -a "src=/home/automation/.ssh/id_rsa.pub dest=/home/automation/.ssh/authorized_keys"
+
+ansible all -b -u root -m lineinfile -a "path=/etc/sudoers regexp=automation line='automation ALL=(ALL) NOPASSWD:ALL' state=present"

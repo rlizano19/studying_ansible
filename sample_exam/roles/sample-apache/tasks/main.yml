@@ -1,0 +1,29 @@
+- name: Install several packages
+  yum:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - httpd
+    - mod_ssl
+    - php
+
+- name: Start and enable Apache service
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+
+- name: Open ports for apache
+  firewalld:
+    port: "{{ item }}/tcp"
+    permanent: yes 
+    state: enabled 
+  loop:
+    - 80
+    - 443
+
+- name: Copy template
+  template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+  notify: restart-apache

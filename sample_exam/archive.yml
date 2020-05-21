@@ -1,0 +1,12 @@
+- hosts: database
+  become: true
+  tasks:
+  - name: Create database list
+    copy:
+      content: dev,test,qa,prod
+      dest: /mnt/mysql_backups/database_list.txt
+
+  - name: Compress file
+    archive:
+      path: /mnt/mysql_backups/database_list.txt
+      dest: /mnt/mysql_backups/archive.gz 

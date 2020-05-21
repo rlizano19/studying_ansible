@@ -1,0 +1,21 @@
+- hosts: all
+  gather_facts: false
+  become: yes
+  tasks:
+  - name: Modify motd for proxy group
+    copy:
+      content: "Welcome to HAProxy server!\n"
+      dest: /etc/motd
+    when: inventory_hostname in groups.proxy 
+
+  - name: Modify motd for webservers group
+    copy:
+      content: "Welcome to Apache server!\n"
+      dest: /etc/motd
+    when: inventory_hostname in groups.webservers
+
+  - name: Modify motd for database group
+    copy:
+      content: "Welcome to MySQL server!\n"
+      dest: /etc/motd
+    when: inventory_hostname in groups.database

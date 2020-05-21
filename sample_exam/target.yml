@@ -1,0 +1,18 @@
+- hosts: webservers
+  become: yes
+  tasks:
+  - name: Remove current default target
+    file:
+      path: /etc/systemd/system/default.target
+      state: absent
+
+  - name: Set default boot target
+    file:
+      src: /lib/systemd/system/multi-user.target
+      path: /etc/systemd/system/default.target
+      state: link
+    register: target
+
+  - name: Reboot if changed just to test
+    reboot:
+    when: target.changed

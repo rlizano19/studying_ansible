@@ -1,0 +1,16 @@
+- hosts: proxy
+  become: yes
+  gather_facts: yes
+  roles:
+    - geerlingguy.haproxy  
+  tasks:
+#  - name: Disable HTTPS
+#    firewalld:
+#      service: https
+#      state: disabled
+
+#  - name: Open port 80
+#    firewalld:
+#      port: 80
+#      permanent: yes
+#      state: enabled

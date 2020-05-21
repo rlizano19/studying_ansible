@@ -1,0 +1,45 @@
+- hosts: all
+  gather_facts: false
+  become: yes
+  vars_files:
+    - secret.yml
+    - vars/user_list.yml
+  tasks:
+  - name: Create users in webservers group
+    user:
+      name: "{{ item.username }}"
+      password: "{{ user_password | password_hash('sha512','secretsalsa') }}"
+      shell: /bin/bash
+      state: present
+      groups: wheel
+      uid: "{{ item.uid }}"
+      generate_ssh_key: yes
+    when: (item.uid|string)[0] == '1' and inventory_hostname in groups.webservers
+    loop: "{{ users }}"
+
+
+  - name: Create users in database group
+    user:
+      name: "{{ item.username }}"
+      password: "{{ user_password | password_hash('sha512','secretsalsa') }}"
+      shell: /bin/bash
+      state: present
+      groups: wheel
+      uid: "{{ item.uid }}"
+      generate_ssh_key: yes
+    when: (item.uid|string)[0] == '2' and inventory_hostname in groups.database
+    loop: "{{ users }}"
+
+  - name: Copy ssh keys from control to database servers
+    copy:
+      src: /home/automation/.ssh/id_rsa.pub
+      dest: "/home/{{ item.username }}/.ssh/authorized_keys"
+    when: (item.uid|string)[0] == '2' and inventory_hostname in groups.database
+    loop: "{{ users }}"
+
+  - name: Copy ssh keys from control to webservers
+    copy:
+      src: /home/automation/.ssh/id_rsa.pub
+      dest: "/home/{{ item.username }}/.ssh/authorized_keys"
+    when: (item.uid|string)[0] == '1' and inventory_hostname in groups.webservers
+    loop: "{{ users }}"

@@ -1,0 +1,19 @@
+- hosts: proxy
+  become: yes
+  tasks:
+  - name: Install tcpdump and mailx
+    yum:
+      name:
+        - tcpdump
+        - mailx
+      state: present
+
+- hosts: database
+  become: yes
+  tasks:
+  - name: Install lsof and mailx
+    yum:
+      name:
+        - lsof
+        - mailx
+      state: present

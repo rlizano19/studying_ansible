@@ -1,0 +1,24 @@
+- hosts: webservers
+  become: yes
+  gather_facts: yes
+  tasks:
+  - name: Enable SELinux
+    selinux:
+      policy: targeted
+      state: enforcing
+    register: selinuxout
+
+  - name: Install semanage utility
+    yum:
+      name: libsemanage-python
+      state: present
+
+  - name: Enable boolean  
+    seboolean:
+      name: httpd_can_network_connect
+      state: yes
+      persistent: yes
+
+  - name: Reboot server
+    reboot:    
+    when: selinuxout.reboot_required
